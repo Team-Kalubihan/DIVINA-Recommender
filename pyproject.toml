@@ -1,0 +1,18 @@
+[project]
+name = "divina-recommender"
+version = "0.1.0"
+description = "DIVINA Recommendation System with weighted factor distribution"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "numpy>=2.4.2",
+    "pandas>=3.0.1",
+]
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+packages = ["divina_recommender"]
+
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
