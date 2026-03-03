@@ -1,0 +1,6 @@
+id,name,water_visibility,wave_height,current_speed,wind_speed,water_temperature,rain_probability,marine_biodiversity,difficulty,photography_score,max_depth,marine_life,distance_km,crowd_level
+1,Crystal Cove,25.0,0.5,0.2,5.0,24.0,0.1,9.0,2,8.5,18.0,"Turtle,Clownfish,Ray",15.0,0.3
+2,Stormy Peak,5.0,3.5,2.5,25.0,18.0,0.8,4.0,5,2.0,40.0,"Shark",60.0,0.1
+3,Busy Reef,15.0,1.0,0.5,10.0,22.0,0.2,7.5,3,7.0,25.0,"Octopus,Moray Eel",5.0,0.9
+4,Coral Garden,30.0,0.3,0.1,2.0,26.0,0.0,10.0,1,9.5,12.0,"Manta Ray,Turtle,Anemone",30.0,0.4
+5,The Deep Blue,10.0,1.5,1.2,15.0,15.0,0.4,6.0,4,5.0,60.0,"Whale Shark",120.0,0.2
