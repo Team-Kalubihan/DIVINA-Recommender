@@ -1,16 +1,7 @@
-from dataclasses import dataclass, field
-from typing import List, Optional, Dict, Any
+from dataclasses import dataclass
+from typing import List, Dict, Any
 import pandas as pd
-
-@dataclass
-class EnvironmentalConditions:
-    water_visibility: float  # meters
-    wave_height: float       # meters
-    current_speed: float     # knots
-    wind_speed: float        # knots
-    water_temperature: float # Celsius
-    rain_probability: float  # 0 to 1
-    marine_biodiversity: float # 0 to 10 score
+from .environmental_conditions import EnvironmentalConditions
 
 @dataclass
 class DiveSite:
@@ -72,22 +63,4 @@ class DiveSite:
             marine_life=ml,
             distance_km=safe_float(data.get('distance_km'), 50),
             crowd_level=safe_float(data.get('crowd_level'), 0.5)
-        )
-
-@dataclass
-class UserPreferences:
-    skill_level: int
-    preferred_marine_life: List[str]
-    photography_priority: float
-    depth_preference: float
-    max_travel_distance: float
-
-    @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> 'UserPreferences':
-        return cls(
-            skill_level=int(data.get('skill_level', 3)),
-            preferred_marine_life=data.get('preferred_marine_life', []),
-            photography_priority=float(data.get('photography_priority', 5.0)),
-            depth_preference=float(data.get('depth_preference', 20.0)),
-            max_travel_distance=float(data.get('max_travel_distance', 100.0))
         )
