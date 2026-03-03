@@ -1,5 +1,5 @@
-import json
-from divina_recommender import RecommenderEngine, DiveSite, UserPreferences
+from divina_recommender import RecommenderEngine, DiverSkill
+
 
 def main():
     # 1. Sample data as if it came from an API (JSON)
@@ -45,7 +45,7 @@ def main():
     ]
 
     raw_user_data = {
-        "skill_level": 3,
+        "skill_level": DiverSkill.ADVANCED_OPEN_WATER,
         "preferred_marine_life": ["Turtle", "Shark"],
         "photography_priority": 8,
         "depth_preference": 20,
