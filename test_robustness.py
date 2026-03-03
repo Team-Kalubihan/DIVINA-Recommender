@@ -1,6 +1,6 @@
 import pandas as pd
-from src.divina_recommender.models import DiveSite, UserPreferences
-from src.divina_recommender.engine import RecommenderEngine
+from divina_recommender.models import DiveSite, UserPreferences
+from divina_recommender.engine import RecommenderEngine
 import io
 
 def test_missing_column():
