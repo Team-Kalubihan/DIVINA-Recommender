@@ -1,10 +1,10 @@
 from typing import List, Dict, Optional, Any
-from .models import DiveSite, UserPreferences, EnvironmentalConditions
+from .models import DiveSite, UserPreferences, EnvironmentalConditions, DiveShop
 
 class RecommenderEngine:
     """
     Core Recommendation Engine for DIVINA.
-    It is data-source agnostic and operates on DiveSite and UserPreferences objects.
+    It is data-source agnostic and operates on DiveSite, UserPreferences, and DiveShop objects.
     """
     
     # Default Weights from the specification
@@ -27,6 +27,13 @@ class RecommenderEngine:
         },
         "crowd_optimization": {
             "crowd_level": 0.15
+        },
+        "dive_shop": {
+            "service_match": 0.30,
+            "site_match": 0.30,
+            "rating": 0.20,
+            "price_match": 0.10,
+            "distance": 0.10
         }
     }
 
@@ -103,6 +110,49 @@ class RecommenderEngine:
         w = self.weights["crowd_optimization"]
         return (1.0 - site.crowd_level) * w["crowd_level"] / 0.15
 
+    def calculate_shop_score(self, shop: DiveShop, user: UserPreferences, sites: List[DiveSite]) -> float:
+        w = self.weights["dive_shop"]
+        
+        # Service Match
+        service_score = 1.0
+        if user.requires_rental and not shop.has_rental: service_score *= 0.2
+        if user.requires_nitrox and not shop.has_nitrox: service_score *= 0.2
+        if user.requires_training and not shop.has_training: service_score *= 0.5
+        if user.is_tech_diver and not shop.is_tech_friendly: service_score *= 0.3
+        
+        # Site Match: Average site score for this shop
+        shop_sites = [s for s in sites if s.id in shop.dive_sites]
+        if not shop_sites:
+            site_match_score = 0.5
+        else:
+            site_scores = []
+            for site in shop_sites:
+                env = self.calculate_environmental_score(site)
+                pref = self.calculate_preference_score(site, user)
+                crowd = self.calculate_crowd_score(site)
+                site_scores.append((env * 0.60) + (pref * 0.25) + (crowd * 0.15))
+            site_match_score = sum(site_scores) / len(site_scores)
+            
+        # Rating
+        rating_score = self._normalize(shop.rating, 0, 5.0)
+        
+        # Price Match
+        price_match_score = 1.0
+        if user.preferred_price_level:
+            price_match_score = 1.0 - (abs(shop.price_level - user.preferred_price_level) / 3.0)
+            
+        # Distance
+        dist_score = self._normalize(shop.distance_km, 0, user.max_travel_distance, reverse=True)
+        
+        total_shop_score = (
+            service_score * w["service_match"] +
+            site_match_score * w["site_match"] +
+            rating_score * w["rating"] +
+            price_match_score * w["price_match"] +
+            dist_score * w["distance"]
+        )
+        return total_shop_score
+
     def recommend(self, sites: List[DiveSite], user: UserPreferences) -> List[Dict[str, Any]]:
         """
         Ranks a list of DiveSite objects for a given User.
@@ -126,6 +176,20 @@ class RecommenderEngine:
                 }
             })
         
+        return sorted(results, key=lambda x: x["total_score"], reverse=True)
+
+    def recommend_shops(self, shops: List[DiveShop], user: UserPreferences, sites: List[DiveSite]) -> List[Dict[str, Any]]:
+        """
+        Ranks a list of DiveShop objects for a given User.
+        """
+        results = []
+        for shop in shops:
+            score = self.calculate_shop_score(shop, user, sites)
+            results.append({
+                "shop_id": shop.id,
+                "shop_name": shop.name,
+                "total_score": round(score, 4)
+            })
         return sorted(results, key=lambda x: x["total_score"], reverse=True)
 
     def recommend_from_data(self, sites_data: List[Dict], user_data: Dict) -> List[Dict]:
